@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+@layer base {
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: #0f172a;
+    background-color: #f8fafc;
+    -webkit-tap-highlight-color: transparent;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* Theme definitions */
+[data-theme="clinical"] {
+  --theme-canvas: #f8fafc;
+  --theme-surface: #ffffff;
+}
+
+[data-theme="plain"] {
+  --theme-canvas: #f5f5f4;
+  --theme-surface: #ffffff;
+}
+
+[data-theme="nocturne"] {
+  --theme-canvas: #090d16;
+  --theme-surface: #111827;
+}
+
+[data-theme="sage"] {
+  --theme-canvas: #f2f6f3;
+  --theme-surface: #ffffff;
+}
+
+[data-theme="circadian"] {
+  --theme-canvas: #fcf7ee;
+  --theme-surface: #fffdf9;
+}
+
+[data-theme="artistic"] {
+  --theme-canvas: #f6f4fa;
+  --theme-surface: #ffffff;
+}
+
+/* Custom scrollbars for dashboard feeds */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

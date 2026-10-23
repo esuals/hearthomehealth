@@ -1,0 +1,6 @@
+{
+  "name": "AegisCare Annual Health Membership",
+  "description": "Yearly subscription healthcare membership for scheduled checkups, emergency ambulance dispatch, tele-diagnostics, express prescription delivery, and 24/7 real-time care support.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
