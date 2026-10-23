@@ -216,7 +216,7 @@ export const BookConsultationModal: React.FC<BookConsultationModalProps> = ({
             <div className="flex items-center gap-2">
               <Check className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>
-                <strong>Subscription Benefit:</strong> 1 consultation credit will be deducted from your yearly balance ({user.consultationsRemaining} remaining). $0 copay.
+                <strong>Subscription Benefit:</strong> 1 consultation credit will be deducted from your yearly balance ({user.consultationsRemaining} remaining). ₦0 copay.
               </span>
             </div>
           </div>
@@ -256,7 +256,7 @@ export const BookConsultationModal: React.FC<BookConsultationModalProps> = ({
                     : 'bg-white border-amber-300 text-amber-800 hover:bg-amber-100'
                 }`}
               >
-                Book with Single Add-On ($75 Copay)
+                Book with Single Add-On (₦8,500 Copay)
               </button>
             </div>
           </div>

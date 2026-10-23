@@ -1,0 +1,63 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global default-deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // User profiles for Nigerian pilot participants
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow list: if false; // Disallow scraping of PII
+      allow create: if isOwner(userId)
+                    && isValidId(userId)
+                    && request.resource.data.uid == userId
+                    && request.resource.data.displayName is string
+                    && request.resource.data.displayName.size() <= 100;
+      allow update: if isOwner(userId)
+                    && request.resource.data.uid == userId;
+      allow delete: if false;
+    }
+
+    // Payment transactions for USSD, bank transfer, cards, and POS agent vouchers
+    match /payments/{paymentId} {
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn()
+                    && isValidId(paymentId)
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.amountNaira is number
+                    && request.resource.data.status in ['successful', 'pending', 'failed'];
+      allow update: if false;
+      allow delete: if false;
+    }
+
+    // Booked consultations and schedule maps
+    match /consultations/{consultationId} {
+      allow get: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow create: if isSignedIn()
+                    && isValidId(consultationId)
+                    && request.resource.data.userId == request.auth.uid
+                    && request.resource.data.doctorName is string;
+      allow update: if isSignedIn()
+                    && resource.data.userId == request.auth.uid
+                    && request.resource.data.userId == request.auth.uid;
+      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+    }
+  }
+}

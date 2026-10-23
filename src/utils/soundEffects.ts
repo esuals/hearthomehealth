@@ -18,7 +18,7 @@ class SoundController {
     }
   }
 
-  playChime(type: 'success' | 'alert' | 'tick' = 'success') {
+  playChime(type: 'success' | 'alert' | 'tick' | 'pop' = 'success') {
     try {
       this.initCtx();
       if (!this.ctx) return;
@@ -45,6 +45,14 @@ class SoundController {
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
         osc.start(now);
         osc.stop(now + 0.4);
+      } else if (type === 'pop') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(700, now);
+        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.04);
+        gain.gain.setValueAtTime(0.07, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+        osc.start(now);
+        osc.stop(now + 0.06);
       } else {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(1000, now);

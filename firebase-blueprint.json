@@ -1,0 +1,82 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "User account profile for rural Nigeria healthcare pilot",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 120 },
+        "phoneNumber": { "type": "string", "maxLength": 30 },
+        "state": { "type": "string", "maxLength": 50 },
+        "lga": { "type": "string", "maxLength": 80 },
+        "community": { "type": "string", "maxLength": 100 },
+        "planId": { "type": "string", "maxLength": 50 },
+        "planName": { "type": "string", "maxLength": 80 },
+        "annualFeeNaira": { "type": "number" },
+        "paymentStatus": { "type": "string", "enum": ["active", "pending", "unpaid"] },
+        "paymentMethod": { "type": "string", "maxLength": 50 },
+        "checkupsRemaining": { "type": "number" },
+        "consultationsRemaining": { "type": "number" },
+        "bloodType": { "type": "string", "maxLength": 20 },
+        "allergies": { "type": "string", "maxLength": 300 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["uid", "displayName"]
+    },
+    "PaymentTransaction": {
+      "title": "PaymentTransaction",
+      "description": "Subscription payment transaction via Nigerian financial ecosystem",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 100 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "planId": { "type": "string", "maxLength": 50 },
+        "amountNaira": { "type": "number" },
+        "method": { "type": "string", "enum": ["ussd", "bank_transfer", "card", "pos_agent"] },
+        "reference": { "type": "string", "maxLength": 100 },
+        "status": { "type": "string", "enum": ["successful", "pending", "failed"] },
+        "bankName": { "type": "string", "maxLength": 80 },
+        "ussdCode": { "type": "string", "maxLength": 40 },
+        "agentVoucherCode": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "userId", "planId", "amountNaira", "method", "status"]
+    },
+    "BookedConsultation": {
+      "title": "BookedConsultation",
+      "description": "Scheduled clinic or community health worker visit",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 100 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "doctorName": { "type": "string", "maxLength": 100 },
+        "mode": { "type": "string", "maxLength": 50 },
+        "scheduledDate": { "type": "string", "maxLength": 50 },
+        "scheduledTime": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "maxLength": 30 },
+        "venueName": { "type": "string", "maxLength": 150 },
+        "pickupRequired": { "type": "boolean" },
+        "reasonForVisit": { "type": "string", "maxLength": 250 },
+        "createdAt": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "userId", "doctorName", "scheduledDate", "status"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profile document storing Nigerian membership details"
+    },
+    "/payments/{paymentId}": {
+      "schema": { "$ref": "#/entities/PaymentTransaction" },
+      "description": "Payment records logged for audit and subscription activation"
+    },
+    "/consultations/{consultationId}": {
+      "schema": { "$ref": "#/entities/BookedConsultation" },
+      "description": "User consultation appointments and transport schedule maps"
+    }
+  }
+}

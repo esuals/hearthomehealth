@@ -20,33 +20,32 @@ export const PlanModal: React.FC<PlanModalProps> = ({
   if (!isOpen) return null;
 
   const handleSelect = (plan: SubscriptionPlan) => {
-    soundFx.playChime('success');
+    soundFx.playChime('tick');
     onSelectPlan(plan);
-    onClose();
   };
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
       <div className="bg-white w-full max-w-4xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden my-8">
         {/* Header */}
-        <div className="px-6 py-5 bg-gradient-to-r from-blue-900 via-slate-900 to-indigo-950 text-white flex items-start justify-between">
+        <div className="px-6 py-5 bg-gradient-to-r from-emerald-900 via-slate-900 to-teal-950 text-white flex items-start justify-between">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <Shield className="w-5 h-5 text-blue-400" />
-              <span className="text-xs uppercase tracking-wider font-semibold text-blue-300">
-                Annual Health Membership Tiers
+              <Shield className="w-5 h-5 text-emerald-400" />
+              <span className="text-xs uppercase tracking-wider font-semibold text-emerald-300">
+                Nigerian Rural Healthcare Pilot · Annual Membership Tiers
               </span>
             </div>
             <h2 className="text-xl sm:text-2xl font-bold tracking-tight">
-              One Yearly Subscription. Complete Medical Protection.
+              One Yearly Subscription (₦). Complete Medical Protection.
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 mt-1 max-w-xl">
-              All plans include guaranteed emergency ambulance services, scheduled yearly health screenings, 24/7 tele-diagnostics, and rapid medication delivery.
+              Payable native to Nigerian financial ecosystem via USSD dial codes, instant NIP bank transfer, rural village POS agent cash voucher, or Verve/Mastercard debit cards.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1.5 rounded-lg transition-colors"
+            className="text-slate-400 hover:text-white p-1.5 rounded-lg transition-colors cursor-pointer"
             aria-label="Close"
           >
             <X className="w-5 h-5" />
@@ -64,14 +63,14 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                   key={plan.id}
                   className={`relative flex flex-col bg-white rounded-xl border p-5 transition-all ${
                     isCurrent
-                      ? 'border-blue-600 shadow-md ring-2 ring-blue-600/20'
+                      ? 'border-emerald-600 shadow-md ring-2 ring-emerald-600/20'
                       : plan.popular
                       ? 'border-slate-300 shadow-sm'
                       : 'border-slate-200'
                   }`}
                 >
                   {plan.popular && (
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-xs flex items-center gap-1">
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-emerald-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-xs flex items-center gap-1">
                       <Star className="w-3 h-3 fill-white" />
                       <span>{plan.badge || 'Popular'}</span>
                     </div>
@@ -79,19 +78,44 @@ export const PlanModal: React.FC<PlanModalProps> = ({
 
                   <div className="mb-4">
                     <h3 className="text-base font-bold text-slate-900">{plan.name}</h3>
+                    {plan.nameLocal && (
+                      <span className="text-xs font-semibold text-emerald-700 block">
+                        {plan.nameLocal}
+                      </span>
+                    )}
                     <p className="text-xs text-slate-500 mt-1 min-h-[36px]">{plan.highlight}</p>
                   </div>
 
-                  <div className="mb-5 pb-4 border-b border-slate-100">
+                  <div className="mb-4 pb-4 border-b border-slate-100">
                     <div className="flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold text-slate-900 tabular-nums">
-                        ${plan.pricePerYear.toLocaleString()}
+                      <span className="text-2xl sm:text-3xl font-extrabold text-slate-900 tabular-nums">
+                        ₦{plan.pricePerYearNaira.toLocaleString()}
                       </span>
                       <span className="text-xs text-slate-500 font-medium">/ year</span>
                     </div>
-                    <span className="text-[11px] text-slate-400">
-                      ~${Math.round(plan.pricePerYear / 12)} / month billed annually
+                    <span className="text-[11px] text-slate-400 block mb-3">
+                      ~₦{Math.round(plan.pricePerYearNaira / 12).toLocaleString()} / month billed annually
                     </span>
+
+                    {/* Quota Highlights Grid */}
+                    <div className="grid grid-cols-2 gap-1.5 text-[11px] font-bold">
+                      <div className="bg-red-50 text-red-700 border border-red-200/60 px-2 py-1 rounded-md flex items-center gap-1">
+                        <span>🚑</span>
+                        <span>{plan.features.emergencyDispatchQuota} Dispatches</span>
+                      </div>
+                      <div className="bg-emerald-50 text-emerald-800 border border-emerald-200/60 px-2 py-1 rounded-md flex items-center gap-1">
+                        <span>🧪</span>
+                        <span>{plan.features.scheduledChecksQuota} Tests</span>
+                      </div>
+                      <div className="bg-indigo-50 text-indigo-800 border border-indigo-200/60 px-2 py-1 rounded-md flex items-center gap-1">
+                        <span>📱</span>
+                        <span>{plan.features.annualConsultationsQuota} Tele-Diag</span>
+                      </div>
+                      <div className="bg-cyan-50 text-cyan-800 border border-cyan-200/60 px-2 py-1 rounded-md flex items-center gap-1">
+                        <span>💊</span>
+                        <span>{plan.features.rxDeliveryQuota} Rx Deliveries</span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Feature Breakdown */}
@@ -130,7 +154,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                       <div className="flex items-start gap-2">
                         <Sparkles className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                         <span className="text-slate-700 font-medium text-amber-900">
-                          In-Home Nurse Phlebotomy visits included
+                          In-Home Nurse & CHEW visits included
                         </span>
                       </div>
                     )}
@@ -141,21 +165,21 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                     {isCurrent ? (
                       <button
                         disabled
-                        className="w-full py-2.5 px-4 rounded-lg bg-blue-50 border border-blue-200 text-blue-700 font-semibold text-xs flex items-center justify-center gap-1.5 cursor-default"
+                        className="w-full py-2.5 px-4 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 font-semibold text-xs flex items-center justify-center gap-1.5 cursor-default"
                       >
                         <Check className="w-4 h-4" />
-                        <span>Current Active Plan</span>
+                        <span>Active Enrolled Plan</span>
                       </button>
                     ) : (
                       <button
                         onClick={() => handleSelect(plan)}
-                        className={`w-full py-2.5 px-4 rounded-lg font-semibold text-xs transition-colors shadow-xs ${
+                        className={`w-full py-2.5 px-4 rounded-lg font-semibold text-xs transition-colors shadow-xs cursor-pointer ${
                           plan.popular
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
                             : 'bg-slate-900 hover:bg-slate-800 text-white'
                         }`}
                       >
-                        Switch to {plan.name}
+                        Pay ₦{plan.pricePerYearNaira.toLocaleString()} (USSD / Bank)
                       </button>
                     )}
                   </div>
@@ -165,10 +189,10 @@ export const PlanModal: React.FC<PlanModalProps> = ({
           </div>
 
           {/* Guarantee notice */}
-          <div className="mt-6 p-3.5 bg-blue-50/70 border border-blue-100 rounded-xl flex items-center gap-3 text-xs text-blue-900">
-            <AlertCircle className="w-5 h-5 text-blue-600 shrink-0" />
+          <div className="mt-6 p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl flex items-center gap-3 text-xs text-emerald-900">
+            <AlertCircle className="w-5 h-5 text-emerald-600 shrink-0" />
             <p>
-              <strong>Annual Subscription Guarantee:</strong> Zero deductible or surprise charges on emergency ambulance dispatches and scheduled checkup panels. Refill medication courier allowance rolls over each quarter.
+              <strong>Rural Pilot Guarantee:</strong> No deductible or unexpected hospital fees for emergency ambulance dispatches and scheduled health checks. Instant receipt generated with NIBSS verification.
             </p>
           </div>
         </div>

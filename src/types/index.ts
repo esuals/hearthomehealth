@@ -1,9 +1,10 @@
-export type ActiveTab = 'overview' | 'checks' | 'emergency' | 'telediag' | 'pharmacy' | 'support' | 'plans';
+export type ActiveTab = 'overview' | 'checks' | 'emergency' | 'telediag' | 'pharmacy' | 'support' | 'plans' | 'facilities' | 'terms';
 
 export interface SubscriptionPlan {
   id: string;
   name: string;
-  pricePerYear: number;
+  nameLocal?: string; // e.g. Nlekọta Basic, Ezinụlọ Premier, Udo Complete
+  pricePerYearNaira: number;
   highlight: string;
   badge?: string;
   popular?: boolean;
@@ -16,6 +17,9 @@ export interface SubscriptionPlan {
     homePhlebotomy: boolean;
     familyMembersIncluded: number;
     annualConsultationsQuota: number;
+    emergencyDispatchQuota: number;
+    scheduledChecksQuota: number;
+    rxDeliveryQuota: number;
   };
 }
 
@@ -23,6 +27,7 @@ export type ConsultationMode = 'video_telehealth' | 'in_home_physician' | 'clini
 
 export interface BookedConsultation {
   id: string;
+  userId?: string;
   doctorName: string;
   doctorSpecialty: string;
   doctorHospital: string;
@@ -62,14 +67,22 @@ export interface BookedConsultation {
 
 export interface UserMembership {
   memberId: string;
+  uid?: string;
   memberName: string;
+  email?: string;
+  phoneNumber?: string;
+  state?: string;
+  lga?: string;
+  community?: string;
+  preferredLanguage?: 'English' | 'Yoruba' | 'Hausa' | 'Igbo' | 'Pidgin';
   avatarUrl: string;
   planId: string;
   planName: string;
-  annualFee: number;
+  annualFeeNaira: number;
   renewalDate: string;
   joinedDate: string;
-  status: 'active' | 'renewal_pending';
+  status: 'active' | 'renewal_pending' | 'unpaid';
+  paymentMethod?: 'ussd' | 'bank_transfer' | 'pos_agent' | 'card';
   bloodType: string;
   allergies: string[];
   chronicConditions: string[];
@@ -83,16 +96,20 @@ export interface UserMembership {
   checkupsTotal: number;
   consultationsRemaining: number;
   consultationsTotal: number;
+  emergencyRidesRemaining: number;
+  emergencyRidesTotal: number;
   ambulanceRidesRemaining: string;
   teleConsultsRemaining: string;
   rxDeliveryCredits: number;
+  rxDeliveriesRemaining: number;
+  rxDeliveriesTotal: number;
 }
 
 export interface ScheduledCheck {
   id: string;
   title: string;
   category: 'Biochemical Baseline' | 'Cardiovascular & ECG' | 'Metabolic & Hormonal' | 'Executive Comprehensive';
-  venue: 'Home Phlebotomy Visit' | 'Metropolitan Diagnostic Lab Center';
+  venue: 'Home Phlebotomy Visit' | 'Metropolitan Diagnostic Lab Center' | 'Community Primary Health Post';
   scheduledDate: string;
   scheduledTime: string;
   status: 'confirmed' | 'sample_collected' | 'analyzing' | 'completed';
@@ -171,4 +188,30 @@ export interface SupportChatMessage {
     label: string;
     tab: ActiveTab;
   };
+}
+
+export interface NigerianPaymentRecord {
+  id: string;
+  userId: string;
+  planId: string;
+  planName: string;
+  amountNaira: number;
+  method: 'ussd' | 'bank_transfer' | 'pos_agent' | 'card';
+  reference: string;
+  status: 'successful' | 'pending' | 'failed';
+  bankName?: string;
+  ussdCode?: string;
+  virtualAccount?: string;
+  agentVoucherCode?: string;
+  createdAt: string;
+}
+
+export interface GroundedFacility {
+  name: string;
+  type: string;
+  location: string;
+  mapsUrl: string;
+  emergencyCapable?: boolean;
+  phone?: string;
+  snippet?: string;
 }

@@ -119,7 +119,9 @@ export const MedicationDelivery: React.FC<MedicationDeliveryProps> = ({
               Yearly Membership Pharmacy Benefit
             </span>
             <span className="text-slate-300">·</span>
-            <span className="text-xs text-slate-500">${user.rxDeliveryCredits} Annual Credit Balance</span>
+            <span className="text-xs text-slate-500">
+              {(user.rxDeliveriesRemaining ?? 5)} of {(user.rxDeliveriesTotal ?? 6)} Deliveries Available
+            </span>
           </div>
           <h1 className="text-xl sm:text-2xl font-bold text-slate-900">
             Prescription & Medication Doorstep Delivery

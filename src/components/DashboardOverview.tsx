@@ -24,8 +24,15 @@ import {
   Activity,
   MapPin,
   Car,
-  X
+  Compass,
+  CreditCard,
+  X,
+  FileText,
+  Scale,
+  Headphones,
+  LayoutGrid
 } from 'lucide-react';
+import { soundFx } from '../utils/soundEffects';
 
 interface DashboardOverviewProps {
   user: UserMembership;
@@ -36,6 +43,9 @@ interface DashboardOverviewProps {
   setActiveTab: (tab: ActiveTab) => void;
   onOpenPlans: () => void;
   onOpenBookModal: () => void;
+  onOpenPayment?: () => void;
+  onOpenAuth?: () => void;
+  onOpenTerms?: () => void;
 }
 
 export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
@@ -47,211 +57,561 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   setActiveTab,
   onOpenPlans,
   onOpenBookModal,
+  onOpenPayment,
+  onOpenAuth,
+  onOpenTerms,
 }) => {
   const [showQrModal, setShowQrModal] = useState(false);
+  const [buttonLayout, setButtonLayout] = useState<'6-grid' | '8-grid'>('6-grid');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-5">
       {/* Emergency Active Banner (if dispatched) */}
       {ambulanceState.isActive && (
         <div 
-          onClick={() => setActiveTab('emergency')}
-          className="bg-red-600 text-white p-4 rounded-2xl shadow-lg shadow-red-500/20 cursor-pointer hover:bg-red-700 transition-all flex items-center justify-between"
+          onClick={() => {
+            soundFx.playChime('alert');
+            setActiveTab('emergency');
+          }}
+          className="bg-red-600 text-white p-3.5 sm:p-4 rounded-2xl shadow-lg shadow-red-500/20 cursor-pointer hover:bg-red-700 transition-all flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center animate-pulse">
-              <Ambulance className="w-6 h-6 text-white" />
+            <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur-xs flex items-center justify-center animate-pulse">
+              <Ambulance className="w-5 h-5 text-white" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider bg-white text-red-600 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-bold uppercase tracking-wider bg-white text-red-600 px-2 py-0.5 rounded">
                   Ambulance Dispatched
                 </span>
                 <span className="text-xs text-red-100 font-mono">
                   ETA: ~{ambulanceState.etaMinutes} mins
                 </span>
               </div>
-              <p className="text-sm font-semibold mt-0.5">
+              <p className="text-xs sm:text-sm font-semibold mt-0.5">
                 {ambulanceState.unitName} is responding to your address
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-1 text-xs font-semibold bg-white/20 px-3 py-1.5 rounded-lg">
-            <span>Live Dispatch Console</span>
-            <ChevronRight className="w-4 h-4" />
+          <div className="flex items-center gap-1 text-xs font-semibold bg-white/20 px-2.5 py-1.5 rounded-lg">
+            <span>Live Console</span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </div>
         </div>
       )}
 
-      {/* Hero Membership Card */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white p-6 sm:p-8 shadow-xl border border-slate-800">
+      {/* Hero Membership Card - Compact Viewport-Optimized */}
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-slate-950 via-slate-900 to-blue-950 text-white p-4 sm:p-6 shadow-xl border border-slate-800">
         {/* Subtle decorative glow */}
-        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 -mb-16 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 -mr-16 -mt-16 w-56 h-56 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/3 -mb-16 w-56 h-56 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-800">
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 pb-3.5 sm:pb-4 border-b border-slate-800/80">
           <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-semibold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5" />
-                Active Annual Health Membership
+            <div className="flex items-center gap-2 mb-1">
+              <span className="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Shield className="w-3 h-3 text-emerald-400" />
+                Annual Healthcare · 🇳🇬 Imo State Pilot
               </span>
               <span className="text-slate-600">·</span>
-              <span className="text-xs font-mono text-slate-400">ID: {user.memberId}</span>
+              <span className="text-[11px] font-mono text-slate-400">ID: {user.memberId}</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-              {user.memberName}
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+              <span>{user.memberName}</span>
             </h1>
-            <p className="text-xs sm:text-sm text-slate-400 mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span>{user.planName} (${user.annualFee}/yr)</span>
+            <p className="text-xs text-slate-400 mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5">
+              <span className="text-emerald-300 font-semibold">{user.planName} (₦{user.annualFeeNaira?.toLocaleString() || '120,000'}/yr)</span>
               <span>·</span>
-              <span>Renews {user.renewalDate}</span>
+              <span>{user.community || 'Enyiogugu'}, {user.lga || 'Aboh Mbaise LGA'}</span>
               <span>·</span>
-              <span className="text-emerald-400 font-medium">Auto-Protected</span>
+              <span className="text-emerald-400 font-medium">Protected 24/7</span>
             </p>
           </div>
 
           {/* Quick Actions & Membership QR */}
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2">
+            {onOpenPayment && (
+              <button
+                onClick={() => {
+                  soundFx.playChime('pop');
+                  onOpenPayment();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all shadow-md shadow-emerald-600/30 cursor-pointer active:scale-95"
+                title="Pay via USSD, Bank Transfer or POS Voucher"
+              >
+                <span>₦ Pay / Renew</span>
+              </button>
+            )}
             <button
-              onClick={() => setShowQrModal(true)}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium border border-white/10 transition-colors"
+              onClick={() => {
+                soundFx.playChime('pop');
+                setShowQrModal(true);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-medium border border-white/10 transition-colors cursor-pointer active:scale-95"
               title="Show Medical ID & Verification QR"
             >
-              <QrCode className="w-4 h-4 text-blue-300" />
-              <span>Digital Health Pass</span>
+              <QrCode className="w-3.5 h-3.5 text-emerald-300" />
+              <span>Digital Pass</span>
             </button>
             <button
-              onClick={onOpenPlans}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition-colors shadow-md shadow-blue-600/30"
+              onClick={() => {
+                soundFx.playChime('pop');
+                onOpenPlans();
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold transition-colors border border-slate-700 cursor-pointer active:scale-95"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Manage Plan</span>
+              <Sparkles className="w-3 h-3 text-amber-400" />
+              <span>Tiers</span>
             </button>
           </div>
         </div>
 
-        {/* Annual Benefits Progress & Allowances */}
-        <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-4 pt-6">
-          <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+        {/* Annual Benefits Progress & Allowances - Space-Optimized Grid */}
+        <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-2.5 pt-3.5">
+          <div className="bg-white/5 rounded-xl p-2.5 sm:p-3 border border-white/5">
+            <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
               <span>Annual Checks</span>
               <span className="font-semibold text-white">{user.checkupsRemaining} of {user.checkupsTotal} Left</span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-1.5 mb-2 overflow-hidden">
+            <div className="w-full bg-slate-800 rounded-full h-1.5 mb-1.5 overflow-hidden">
               <div 
-                className="bg-blue-500 h-1.5 rounded-full" 
+                className="bg-emerald-500 h-1.5 rounded-full" 
                 style={{ width: `${(user.checkupsRemaining / user.checkupsTotal) * 100}%` }}
               />
             </div>
-            <span className="text-[11px] text-slate-400 flex items-center gap-1">
-              <CalendarCheck className="w-3 h-3 text-blue-400" />
-              In-Home or Lab Center
+            <span className="text-[10px] text-slate-400 flex items-center gap-1">
+              <CalendarCheck className="w-3 h-3 text-emerald-400" />
+              Nurse In-Home Visit
             </span>
           </div>
 
-          <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-              <span>Ambulance Dispatch</span>
-              <span className="font-semibold text-emerald-400">100% Covered</span>
+          <div className="bg-white/5 rounded-xl p-2.5 sm:p-3 border border-white/5">
+            <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+              <span>Ambulance Dispatches</span>
+              <span className="font-semibold text-emerald-400">
+                {(user.emergencyRidesRemaining ?? 3)} of {(user.emergencyRidesTotal ?? 3)} Left
+              </span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-1.5 mb-2 overflow-hidden">
-              <div className="bg-emerald-500 h-1.5 rounded-full w-full" />
+            <div className="w-full bg-slate-800 rounded-full h-1.5 mb-1.5 overflow-hidden">
+              <div 
+                className="bg-emerald-500 h-1.5 rounded-full" 
+                style={{ width: `${Math.min(100, Math.max(0, ((user.emergencyRidesRemaining ?? 3) / (user.emergencyRidesTotal ?? 3)) * 100))}%` }}
+              />
             </div>
-            <span className="text-[11px] text-slate-400 flex items-center gap-1">
+            <span className="text-[10px] text-slate-400 flex items-center gap-1">
               <Ambulance className="w-3 h-3 text-emerald-400" />
-              ALS Unit · $0 Copay
+              4x4 Rural Unit · ₦0 Copay
             </span>
           </div>
 
-          <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-              <span>Consultations</span>
+          <div className="bg-white/5 rounded-xl p-2.5 sm:p-3 border border-white/5">
+            <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+              <span>Doctor Consults</span>
               <span className={`font-semibold ${user.consultationsRemaining > 0 ? 'text-white' : 'text-amber-400 font-bold'}`}>
                 {user.consultationsRemaining} of {user.consultationsTotal} Left
               </span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-1.5 mb-2 overflow-hidden">
+            <div className="w-full bg-slate-800 rounded-full h-1.5 mb-1.5 overflow-hidden">
               <div 
                 className={`h-1.5 rounded-full ${user.consultationsRemaining > 0 ? 'bg-indigo-400' : 'bg-red-500'}`} 
                 style={{ width: `${(user.consultationsRemaining / user.consultationsTotal) * 100}%` }}
               />
             </div>
-            <span className="text-[11px] text-slate-400 flex items-center gap-1">
+            <span className="text-[10px] text-slate-400 flex items-center gap-1">
               <Stethoscope className="w-3 h-3 text-indigo-400" />
               MD & Shuttle Transport
             </span>
           </div>
 
-          <div className="bg-white/5 rounded-2xl p-4 border border-white/5">
-            <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-              <span>Medication Delivery</span>
-              <span className="font-semibold text-white">${user.rxDeliveryCredits} Credits</span>
+          <div className="bg-white/5 rounded-xl p-2.5 sm:p-3 border border-white/5">
+            <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
+              <span>Drug Deliveries</span>
+              <span className="font-semibold text-white">
+                {(user.rxDeliveriesRemaining ?? 5)} of {(user.rxDeliveriesTotal ?? 6)} Left
+              </span>
             </div>
-            <div className="w-full bg-slate-800 rounded-full h-1.5 mb-2 overflow-hidden">
-              <div className="bg-cyan-400 h-1.5 rounded-full w-3/4" />
+            <div className="w-full bg-slate-800 rounded-full h-1.5 mb-1.5 overflow-hidden">
+              <div 
+                className="bg-cyan-400 h-1.5 rounded-full" 
+                style={{ width: `${Math.min(100, Math.max(0, ((user.rxDeliveriesRemaining ?? 5) / (user.rxDeliveriesTotal ?? 6)) * 100))}%` }}
+              />
             </div>
-            <span className="text-[11px] text-slate-400 flex items-center gap-1">
+            <span className="text-[10px] text-slate-400 flex items-center gap-1">
               <Pill className="w-3 h-3 text-cyan-400" />
-              45-Min Express Courier
+              Express Bike Courier
             </span>
           </div>
         </div>
       </div>
 
-      {/* Rapid Action Buttons (Mobile-first Touch targets) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
-        <button
-          onClick={() => setActiveTab('checks')}
-          className="flex flex-col items-start p-4 bg-white rounded-2xl border border-slate-200 hover:border-blue-400 hover:shadow-md transition-all group text-left"
-        >
-          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-            <CalendarCheck className="w-5 h-5" />
+      {/* Action Buttons Section - Symmetrically Divided to Equally Occupy Two Rows */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-4 shadow-xs">
+        <div className="flex items-center justify-between mb-2.5 px-0.5">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <h2 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
+              Primary Healthcare Actions
+            </h2>
+            <span className="hidden md:inline-block text-[11px] font-medium text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md border border-slate-200">
+              Balanced 2-Row Layout
+            </span>
           </div>
-          <span className="text-xs text-slate-500 font-medium">Scheduled</span>
-          <span className="text-sm font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
-            Annual Checkup
-          </span>
-        </button>
 
-        <button
-          onClick={() => setActiveTab('emergency')}
-          className="flex flex-col items-start p-4 bg-white rounded-2xl border border-red-200 hover:border-red-400 hover:shadow-md transition-all group text-left bg-gradient-to-b from-white to-red-50/30"
-        >
-          <div className="w-10 h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center mb-3 group-hover:bg-red-600 group-hover:text-white transition-colors">
-            <Ambulance className="w-5 h-5" />
+          {/* Toggle between 6-action (3 per row) and 8-action (4 per row) */}
+          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-[10px] sm:text-xs font-semibold text-slate-600 border border-slate-200">
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                setButtonLayout('6-grid');
+              }}
+              className={`px-2 py-1 rounded-md transition-colors cursor-pointer ${
+                buttonLayout === '6-grid'
+                  ? 'bg-white text-slate-950 shadow-2xs font-bold'
+                  : 'hover:text-slate-900'
+              }`}
+              title="Equally divide into 2 rows of 3 buttons (6 Core Services)"
+            >
+              3 × 2 Grid
+            </button>
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                setButtonLayout('8-grid');
+              }}
+              className={`px-2 py-1 rounded-md transition-colors cursor-pointer ${
+                buttonLayout === '8-grid'
+                  ? 'bg-white text-slate-950 shadow-2xs font-bold'
+                  : 'hover:text-slate-900'
+              }`}
+              title="Equally divide into 2 rows of 4 buttons (8 Full Actions)"
+            >
+              4 × 2 Grid
+            </button>
           </div>
-          <span className="text-xs text-red-600 font-semibold">Priority 911/ALS</span>
-          <span className="text-sm font-bold text-red-700 group-hover:text-red-800 transition-colors">
-            Emergency SOS
-          </span>
-        </button>
+        </div>
 
-        <button
-          onClick={onOpenBookModal}
-          className="flex flex-col items-start p-4 bg-white rounded-2xl border border-slate-200 hover:border-indigo-400 hover:shadow-md transition-all group text-left"
-        >
-          <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-            <Stethoscope className="w-5 h-5" />
-          </div>
-          <span className="text-xs text-slate-500 font-medium">{user.consultationsRemaining} of {user.consultationsTotal} Left</span>
-          <span className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">
-            Book Consultation
-          </span>
-        </button>
+        {/* 6-BUTTON LAYOUT: Exactly 3 buttons in Row 1, 3 buttons in Row 2 */}
+        {buttonLayout === '6-grid' && (
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            {/* ROW 1: BUTTON 1 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                setActiveTab('checks');
+              }}
+              className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[70px] sm:min-h-[72px]"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <CalendarCheck className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition-colors leading-tight truncate">
+                  Annual Checkup
+                </span>
+                <span className="hidden sm:inline-block text-[11px] text-slate-500 font-medium truncate">
+                  {user.checkupsRemaining} of {user.checkupsTotal} Left
+                </span>
+                <span className="sm:hidden text-[10px] text-emerald-700 font-semibold block">
+                  {user.checkupsRemaining} Left
+                </span>
+              </div>
+            </button>
 
-        <button
-          onClick={() => setActiveTab('pharmacy')}
-          className="flex flex-col items-start p-4 bg-white rounded-2xl border border-slate-200 hover:border-cyan-400 hover:shadow-md transition-all group text-left"
-        >
-          <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center mb-3 group-hover:bg-cyan-600 group-hover:text-white transition-colors">
-            <Pill className="w-5 h-5" />
+            {/* ROW 1: BUTTON 2 (Emergency SOS - Priority Highlight) */}
+            <button
+              onClick={() => {
+                soundFx.playChime('alert');
+                setActiveTab('emergency');
+              }}
+              className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border border-red-200 bg-red-50/40 hover:border-red-400 hover:bg-red-50/70 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[70px] sm:min-h-[72px]"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-red-100 text-red-600 flex items-center justify-center shrink-0 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                <Ambulance className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-xs sm:text-sm font-bold text-red-700 group-hover:text-red-800 transition-colors leading-tight truncate">
+                  Emergency SOS
+                </span>
+                <span className="hidden sm:inline-block text-[11px] text-red-600 font-semibold truncate">
+                  Priority 4x4 & Keke
+                </span>
+                <span className="sm:hidden text-[10px] text-red-600 font-bold block">
+                  Instant SOS
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 1: BUTTON 3 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                onOpenBookModal();
+              }}
+              className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[70px] sm:min-h-[72px]"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                <Stethoscope className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight truncate">
+                  Doctor Consult
+                </span>
+                <span className="hidden sm:inline-block text-[11px] text-slate-500 font-medium truncate">
+                  {user.consultationsRemaining} of {user.consultationsTotal} Left
+                </span>
+                <span className="sm:hidden text-[10px] text-indigo-600 font-semibold block">
+                  {user.consultationsRemaining} Left
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 2: BUTTON 4 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                setActiveTab('facilities');
+              }}
+              className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[70px] sm:min-h-[72px]"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                <Compass className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-teal-700 transition-colors leading-tight truncate">
+                  PHCs & Clinics
+                </span>
+                <span className="hidden sm:inline-block text-[11px] text-slate-500 font-medium truncate">
+                  Google Maps Grounded
+                </span>
+                <span className="sm:hidden text-[10px] text-teal-700 font-semibold block">
+                  Find Clinics
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 2: BUTTON 5 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                setActiveTab('pharmacy');
+              }}
+              className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border border-slate-200 hover:border-cyan-400 hover:bg-cyan-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[70px] sm:min-h-[72px]"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0 group-hover:bg-cyan-600 group-hover:text-white transition-colors">
+                <Pill className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-cyan-600 transition-colors leading-tight truncate">
+                  Drug Delivery
+                </span>
+                <span className="hidden sm:inline-block text-[11px] text-slate-500 font-medium truncate">
+                  Rural Bike Courier
+                </span>
+                <span className="sm:hidden text-[10px] text-cyan-700 font-semibold block">
+                  Rx Delivery
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 2: BUTTON 6 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                setActiveTab('support');
+              }}
+              className="flex flex-col sm:flex-row items-center sm:items-center text-center sm:text-left gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[70px] sm:min-h-[72px]"
+            >
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                <Headphones className="w-5 h-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <span className="block text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-700 transition-colors leading-tight truncate">
+                  Care Concierge
+                </span>
+                <span className="hidden sm:inline-block text-[11px] text-slate-500 font-medium truncate">
+                  24/7 Community Support
+                </span>
+                <span className="sm:hidden text-[10px] text-amber-700 font-semibold block">
+                  24/7 Support
+                </span>
+              </div>
+            </button>
           </div>
-          <span className="text-xs text-slate-500 font-medium">Doorstep Courier</span>
-          <span className="text-sm font-bold text-slate-900 group-hover:text-cyan-600 transition-colors">
-            Drug Delivery
-          </span>
-        </button>
+        )}
+
+        {/* 8-BUTTON LAYOUT: Exactly 4 buttons in Row 1, 4 buttons in Row 2 */}
+        {buttonLayout === '8-grid' && (
+          <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
+            {/* ROW 1: BUTTON 1 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                setActiveTab('checks');
+              }}
+              className="flex flex-col items-center text-center gap-1.5 p-2 sm:p-2.5 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[68px] sm:min-h-[72px]"
+            >
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                <CalendarCheck className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 w-full">
+                <span className="block text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition-colors leading-tight truncate">
+                  Checkups
+                </span>
+                <span className="text-[10px] text-slate-500 block truncate">
+                  {user.checkupsRemaining} Left
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 1: BUTTON 2 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('alert');
+                setActiveTab('emergency');
+              }}
+              className="flex flex-col items-center text-center gap-1.5 p-2 sm:p-2.5 rounded-xl border border-red-200 bg-red-50/40 hover:border-red-400 hover:bg-red-50/70 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[68px] sm:min-h-[72px]"
+            >
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-red-100 text-red-600 flex items-center justify-center shrink-0 group-hover:bg-red-600 group-hover:text-white transition-colors">
+                <Ambulance className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 w-full">
+                <span className="block text-[11px] sm:text-xs font-bold text-red-700 group-hover:text-red-800 transition-colors leading-tight truncate">
+                  Ambulance
+                </span>
+                <span className="text-[10px] text-red-600 font-bold block truncate">
+                  Emergency
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 1: BUTTON 3 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                onOpenBookModal();
+              }}
+              className="flex flex-col items-center text-center gap-1.5 p-2 sm:p-2.5 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[68px] sm:min-h-[72px]"
+            >
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                <Stethoscope className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 w-full">
+                <span className="block text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-indigo-600 transition-colors leading-tight truncate">
+                  Doctor
+                </span>
+                <span className="text-[10px] text-indigo-600 block truncate">
+                  Consultation
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 1: BUTTON 4 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                setActiveTab('pharmacy');
+              }}
+              className="flex flex-col items-center text-center gap-1.5 p-2 sm:p-2.5 rounded-xl border border-slate-200 hover:border-cyan-400 hover:bg-cyan-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[68px] sm:min-h-[72px]"
+            >
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0 group-hover:bg-cyan-600 group-hover:text-white transition-colors">
+                <Pill className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 w-full">
+                <span className="block text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-cyan-600 transition-colors leading-tight truncate">
+                  Pharmacy
+                </span>
+                <span className="text-[10px] text-slate-500 block truncate">
+                  Rx Delivery
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 2: BUTTON 5 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                setActiveTab('facilities');
+              }}
+              className="flex flex-col items-center text-center gap-1.5 p-2 sm:p-2.5 rounded-xl border border-slate-200 hover:border-teal-400 hover:bg-teal-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[68px] sm:min-h-[72px]"
+            >
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 group-hover:bg-teal-600 group-hover:text-white transition-colors">
+                <Compass className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 w-full">
+                <span className="block text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-teal-700 transition-colors leading-tight truncate">
+                  Clinics
+                </span>
+                <span className="text-[10px] text-slate-500 block truncate">
+                  Google Maps
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 2: BUTTON 6 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                setActiveTab('support');
+              }}
+              className="flex flex-col items-center text-center gap-1.5 p-2 sm:p-2.5 rounded-xl border border-slate-200 hover:border-amber-400 hover:bg-amber-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[68px] sm:min-h-[72px]"
+            >
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                <Headphones className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 w-full">
+                <span className="block text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-amber-700 transition-colors leading-tight truncate">
+                  Care
+                </span>
+                <span className="text-[10px] text-slate-500 block truncate">
+                  24/7 Hotline
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 2: BUTTON 7 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                if (onOpenPayment) onOpenPayment();
+              }}
+              className="flex flex-col items-center text-center gap-1.5 p-2 sm:p-2.5 rounded-xl border border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[68px] sm:min-h-[72px]"
+            >
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0 group-hover:bg-emerald-700 transition-colors shadow-2xs">
+                <CreditCard className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 w-full">
+                <span className="block text-[11px] sm:text-xs font-bold text-emerald-900 transition-colors leading-tight truncate">
+                  Pay ₦
+                </span>
+                <span className="text-[10px] text-emerald-700 block truncate">
+                  Renew / USSD
+                </span>
+              </div>
+            </button>
+
+            {/* ROW 2: BUTTON 8 */}
+            <button
+              onClick={() => {
+                soundFx.playChime('pop');
+                if (onOpenTerms) onOpenTerms();
+                else setActiveTab('terms');
+              }}
+              className="flex flex-col items-center text-center gap-1.5 p-2 sm:p-2.5 rounded-xl border border-slate-200 hover:border-rose-400 hover:bg-rose-50/30 hover:shadow-xs transition-all group cursor-pointer active:scale-[0.98] min-h-[68px] sm:min-h-[72px]"
+            >
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0 group-hover:bg-rose-600 group-hover:text-white transition-colors">
+                <FileText className="w-4 h-4" />
+              </div>
+              <div className="min-w-0 w-full">
+                <span className="block text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-rose-700 transition-colors leading-tight truncate">
+                  Terms
+                </span>
+                <span className="text-[10px] text-slate-500 block truncate">
+                  Rights & NDPA
+                </span>
+              </div>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 3-Column Section: Scheduled Checks, Doctor Consultations & Schedule Map, and Prescription Tracking */}
@@ -620,6 +980,42 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Rights of Use, Medical Disclaimer & Clinical Governance Banner */}
+      <div className="bg-gradient-to-r from-slate-900 via-rose-950 to-slate-900 rounded-2xl p-5 text-white shadow-sm border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+            <Scale className="w-5 h-5 text-rose-400" />
+          </div>
+          <div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-rose-300">
+                Clinical Governance & Publishing Terms
+              </span>
+              <span className="text-[10px] font-bold bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-400/30">
+                NDPA 2023 Compliant
+              </span>
+              <span className="text-[10px] font-bold bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded border border-amber-400/30">
+                Imo State Pilot
+              </span>
+            </div>
+            <h4 className="text-sm font-bold text-white mt-1">
+              Rights of Use, Medical Disclaimer & Service Conditions
+            </h4>
+            <p className="text-xs text-slate-300 mt-0.5 max-w-2xl">
+              Published in accordance with the National Health Act 2014, Nigeria Data Protection Act 2023, and Imo State Ministry of Health Clinical Pilot Guidelines.
+            </p>
+          </div>
+        </div>
+
+        <button
+          onClick={onOpenTerms || (() => setActiveTab('terms'))}
+          className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-rose-600/30 shrink-0 cursor-pointer flex items-center justify-center gap-1.5"
+        >
+          <FileText className="w-3.5 h-3.5" />
+          <span>Read Full Terms & Rights</span>
+        </button>
       </div>
 
       {/* Digital Health Pass QR Modal */}

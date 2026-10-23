@@ -97,18 +97,18 @@ export const EmergencyServices: React.FC<EmergencyServicesProps> = ({
     setDispatchState({
       isActive: true,
       status: 'en_route',
-      unitName: 'ALS Mobile Unit 402',
-      unitType: 'Advanced Life Support (ALS) Ambulance',
-      paramedicTeam: ['Capt. Marcus Rivera, Lead Paramedic', 'Sarah Vance, Critical Care EMT-P'],
+      unitName: 'ALS Rural 4x4 Unit 102',
+      unitType: 'Land Cruiser 4x4 Rural Medical Unit & Okada Escort',
+      paramedicTeam: ['Nurse Chioma Nwachukwu, RN', 'Emeka Okorie (Lead CHEW)'],
       etaMinutes: 6,
       initialEtaMinutes: 6,
-      destinationHospital: 'Mount Sinai Hospital Level 1 Trauma Center (1.2 miles)',
+      destinationHospital: 'FMC Owerri / IMSUTH Orlu Emergency Trauma Centre',
       patientAddress: user.address,
       dispatchTimestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       sirenAudioActive: false,
       dispatchCallActive: true,
     });
-    setDispatcherNote('Emergency 911/ALS Priority link confirmed. Paramedics dispatched with siren active.');
+    setDispatcherNote('Rural 4x4 Emergency Unit & motorcycle medical escort dispatched with siren active.');
   };
 
   const handleCancelDispatch = () => {
@@ -152,7 +152,9 @@ export const EmergencyServices: React.FC<EmergencyServicesProps> = ({
         <div className="flex items-center gap-2">
           <div className="text-right hidden sm:block">
             <div className="text-xs text-slate-400">Coverage Status</div>
-            <div className="text-xs font-bold text-emerald-400">Annual Plan Active</div>
+            <div className="text-xs font-bold text-emerald-400">
+              {(user.emergencyRidesRemaining ?? 3)} of {(user.emergencyRidesTotal ?? 3)} Dispatches Available
+            </div>
           </div>
         </div>
       </div>
